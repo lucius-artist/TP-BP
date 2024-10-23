@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [ master, development, release ]
+    branches: [ master ]
 
 jobs:
   build:
@@ -22,42 +22,3 @@ jobs:
 
     - name: Run tests
       run: npm test
-
-    - name: Generate documentation
-      run: npm run docs
-
-  release:
-    runs-on: ubuntu-latest
-    if: ${{ github.ref == 'refs/heads/release' && github.event_name == 'push' }}
-    needs: [build]
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-
-    - name: Set up Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: 16.x
-
-    - name: Install dependencies
-      run: npm install
-
-    - name: Bump version
-      run: npm version patch
-      env:
-        NODE_ENV: production
-
-    - name: Commit and push changes
-      uses: EndBug/add-and-commit@v7
-      with:
-        message: "Release v${{ steps.Bump_version.outputs.new_version }}"
-        add: '*'
-
-    - name: Create GitHub Release
-      uses: actions/create-release@v1
-      with:
-        tag_name: "v${{ steps.Bump_version.outputs.new_version }}"
-        release_name: "Release ${{ steps.Bump_version.outputs.new_version }}"
-        draft: false
-        prerelease: false
-        body: "Release notes"
